@@ -1,0 +1,11 @@
+.minus {
+    font-weight: bold;
+    color: red;
+}
+.score {
+    float: left !important;
+}
+.plus {
+    font-weight: bold;
+    color: green;
+}

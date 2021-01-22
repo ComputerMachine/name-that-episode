@@ -1,0 +1,8 @@
+show total points--------------------done
+unappreciated congratulations, fireworks at minimum
+clips with no dialog
+hint in second one doesnt lower points----------------done
+countdown increases in speed over time--------------------done
+clips not playing all samples-------------------done
+ignore punctuation---------------------------done
+give answer if user gives up
