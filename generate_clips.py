@@ -3,8 +3,9 @@ import subprocess
 import datetime
 import random
 import json
-
 import sr
+import configparser
+
 
 class bcolors:
     HEADER = '\033[95m'
@@ -17,20 +18,21 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-global leopard_
+config = configparser.ConfigParser()
+config.read("config.ini")
 
 def get_episode_data(series):
     """Return season number, episode number, title and the path to all the episodes in a specified series."""
     if series == "tng":
-        series_path = "/media/tazg/Storage/movies/star trek/tng"
+        series_path = config["PATHS"]["tng"]
     elif series == "ds9":
-        series_path = "/media/tazg/Storage/movies/star trek/ds9"
+        series_path = config["PATHS"]["ds9"]
     elif series == "voy":
-        series_path = "/media/tazg/Storage/movies/star trek/voy"
+        series_path = config["PATHS"]["voy"]
     elif series == "tos":
-        series_path = "/media/tazg/Storage/movies/star trek/tos"
+        series_path = config["PATHS"]["tos"]
     elif series == "ent":
-        series_path = "/media/tazg/Storage/movies/star trek/ent"
+        series_path = config["PATHS"]["ent"]
 
     episode_paths = []
 
@@ -60,8 +62,8 @@ def get_episode_data(series):
                 path=episode_path
             )
 
-def create_sample(episode):
-    """"""
+def create_samples(episode):
+    """Create an audio sample, save it and return the answer."""
     dirpath = os.getcwd() + "/samples/s{season}/{n}".format(
         season=episode.get("season"),
         n=episode.get("episode")
@@ -74,18 +76,23 @@ def create_sample(episode):
 
     # create 3 different clips for each episode
 
+    samples = {}
+
     for x in range(1, 4):
         sample_path = "{episode_folder_path}/{x}.ogg".format(episode_folder_path=dirpath, x=x)
 
         if os.path.exists(sample_path):
-            print (bcolors.WARNING + "Sample file already exists... Delete it manually if you want to create a new sample." + bcolors.ENDC)
-            continue
+            print (bcolors.WARNING + "Sample file {} already exists... Delete it manually if you want to create a new sample.".format(x) + bcolors.ENDC)
+            if x == 3:
+                break
+            else:
+                continue
 
         sample_not_guessable = True
 
         while sample_not_guessable:
             start_time = datetime.timedelta(
-                minutes=random.randrange(6,37),
+                minutes=random.randrange(0,42),
                 seconds=random.randrange(0,60)
             )
             end_time = start_time + datetime.timedelta(seconds=10)
@@ -109,7 +116,7 @@ def create_sample(episode):
 
             # Check if the sample obtained is guessable
             transcript, words = sr.leopard.process_file(sample_path)
-            if is_guessable(transcript):
+            if sr.is_guessable(transcript):
                 print (bcolors.OKGREEN + "Successfully created sample {} for Season {} Episode {} - {}".format(
                     x,
                     episode.get("season"),
@@ -118,57 +125,123 @@ def create_sample(episode):
                     ) + bcolors.ENDC
                 )
                 sample_not_guessable = False
+                sample_file_name = "s{}/{}/{}.ogg".format(episode.get("season"), episode.get("episode"), x)
+                samples[sample_file_name] = transcript
             else:
                 os.remove(sample_path)
 
-    answer = {
+    # only returns an answer dict if all samples have been created
+    return {
         "Season": episode.get("season"),
         "Episode": episode.get("episode"),
         "Name": episode.get("name"),
-        "Samples": [
-            "{}\\1.ogg".format(dirpath),
-            "{}\\2.ogg".format(dirpath),
-            "{}\\3.ogg".format(dirpath),
-        ]
+        "Samples": samples
     }
 
-    return answer
+def update_answer_file(new_data):
+    with open("answers.json", "r") as f:
+        old_data = json.load(f)
 
-def is_guessable(text):
-    """Return a boolean whether the text provides at the very least some information to make it guessable."""
-    data = sr.pos_tag(sr.word_tokenize(text))
-    # jj - adjectives, nn - nouns
-    adjectives = 0
-    nouns = 0
+    updated_data = old_data + new_data
 
-    for word in data:
-        if word[1] == "JJ":
-            adjectives += 1
-        elif word[1] == "NN":
-            nouns += 1
+    #print ("\n\n\n\nold and new\n\n\n\n")
+    #print (old_data)
+    #print (new_data)
 
-    # Arbitrarly declare that the presence of 5 adjectives and nouns combined is a good enough sample to be guessed without going ham into speech processing
-    if adjectives + nouns >= 5:
-        #print ("Provided sample has potential for being guessed... Continuing...")
-        return True
-    else:
-        #print ("Provided sample is unlikely to be guessed.")
-        return False
+
+    # Update answers
+    for index, a1 in enumerate(old_data):
+        for a2 in new_data:
+            if a1["Name"] == a2["Name"]:
+                print ("UPDATING... ", a1["Name"])
+                for sample in a2["Samples"]:
+
+                    print ("\n\n\nSample comparison in progress")
+                    print (a1["Samples"].get(sample), a2["Samples"].get(sample))
+                    print (a1["Samples"].get(sample) == a2["Samples"].get(sample))
+                    print ("SAMPLES: ", a2["Samples"])
+                    print ("\n\n\n\n")
+
+                    if a1["Samples"].get(sample) == a2["Samples"].get(sample):
+                        print ("Sample transcript is the same as the one in the file...")
+                        print ("sample 1: {}, sample 2: {}".format(a1["Samples"].get(sample) , a2["Samples"].get(sample)))
+                        continue
+                    else:
+                        print ("Answer for {} updated...".format(a1["Name"]))
+                        print ("\n\n\n\n\n-----------------a2: ", a2)
+                        print ("data before: ", updated_data[index])
+                        updated_data[index]["Samples"].update(a2["Samples"])
+                        print ("\n\n\n\n\n data after:", updated_data[index])
+
+    #print ("Updated data: ", updated_data)
+
+    with open("answers.json", "w") as f:
+        json.dump(updated_data, f)
+
+    return True
+
+def update_sample_answer(new_answers):
+    with open("answers.json", "r") as f:
+        data = json.load(f)
+    for a, i in enumerate(data):
+        if new_answers['Name'] == a['Name']:
+            data[i] = new_answers # update old answers with the new ones
+    with open("answers.json", "w") as f:
+        json.dump(data, f)
+    return True
+
+
+def update_answers_path(new_path):
+    """Updates the path to the samples folder."""
+    with open("answers.json", "r") as f:
+        data = json.load(f)
+    for i, episode in enumerate(data):
+        paths = []
+        for x in range(3):
+            season_folders = data[i]["Samples"][x].split("/samples/")[1]
+            paths.append(new_path + season_folders)
+        data[i]["Samples"] = paths
+    with open("answers.json", "w") as f:
+        json.dump(data, f)
+    print (data)
+
 
 if __name__ == "__main__":
     data = get_episode_data("tng")
     episodes = [e for e in data]
+    answers_exist = os.path.exists("{}/answers.json".format(os.getcwd()))
+
+    g=0
     answers = []
 
-    #leopard = create(access_key="nk9fLX10chKKm7GoLD5LXM9C/R+Wluajw4p7mgmSA3gCEL11u6DVVA==")
+    try:
+        for episode in episodes:
+            print ("Now working on episode: ", episode.get("name"))
+            sample_answers = create_samples(episode)
+            if sample_answers.get("Samples") == {}:
+                continue
+            answers.append(sample_answers)
+    except KeyboardInterrupt:
+        print ("INTERRUPTED!")
 
-    for episode in episodes:
-        print ("---------------------------------------------------------------")
-        print ("Now working on episode: ", episode.get("name"))
-        data = create_sample(episode)
-        answers.append(data)
-
-    with open("answers.json", "w") as f:
-        json.dump(answers, f)
+    if answers_exist:
+        print ("fking launch this shit")
+        try:
+            update_answer_file(answers)
+        except json.decoder.JSONDecodeError:
+            print ("Invalid JSON or empty answers file perhaps?")
+            g = True
+            while g:
+                s = input("> try again? (y/n)")
+                if s == "y":
+                    update_answer_file(answers)
+                else:
+                    g = False
+        except FileNotFoundError:
+            with open("answers.json", "w") as f:
+                json.dump(answers, f)
+    else:
+        with open("answers.json", "w") as f:
+            json.dump(answers, f)
 
     print ("ALL DONE")

@@ -6,3 +6,6 @@ countdown increases in speed over time--------------------done
 clips not playing all samples-------------------done
 ignore punctuation---------------------------done
 give answer if user gives up
+If sample 1 exists, it will throw an "IndexError: list index out of range" in line 142, @@solution: grab transcript from answer file? don't include the sample file?
+
+[{'s01/13/2.ogg': 'Positronic brain come true the positronic brain he promised so much and then when he failed completely Dr soon disappeared'}, {'s01/13/3.ogg': 'mother of god what did you do??'}]
