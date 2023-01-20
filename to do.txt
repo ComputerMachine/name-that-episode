@@ -1,5 +1,3 @@
-show total points--------------------done
-unappreciated congratulations, fireworks at minimum
 clips with no dialog
 hint in second one doesnt lower points----------------done
 countdown increases in speed over time--------------------done
@@ -9,3 +7,6 @@ give answer if user gives up
 If sample 1 exists, it will throw an "IndexError: list index out of range" in line 142, @@solution: grab transcript from answer file? don't include the sample file?
 
 [{'s01/13/2.ogg': 'Positronic brain come true the positronic brain he promised so much and then when he failed completely Dr soon disappeared'}, {'s01/13/3.ogg': 'mother of god what did you do??'}]
+
+# Bugs
+1. When creating 3 samples for an episode, if the program is interrupted before the series is complete, it doesn't store the answers, and the sample file is sometimes corrupt.
