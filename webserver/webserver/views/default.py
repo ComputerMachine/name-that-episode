@@ -5,6 +5,5 @@ from pyramid.view import view_config
 def my_view(request):
     data = request.registry.settings["episode_data"]
     return {
-        "project": "name-that-episode",
-        "data": data
+        "project": "name-that-episode"
     }
