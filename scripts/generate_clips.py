@@ -62,25 +62,18 @@ def get_episode_data(series):
                 path=episode_path
             )
 
-
 def create_sample(episode):
-    tmp_name = random.randrange(1000000,100000000000)
     sample = {}
     dir_path = "{path}/samples/s{season}/{n}".format(
         path=os.getcwd(),
         season=episode.get("season"),
         n=episode.get("episode")
     )
+
+    sample_path = "{episode_folder_path}/{x}.ogg".format(episode_folder_path=dir_path, x=x)
+
     try:
         os.makedirs(dir_path)
-    except FileExistsError:
-        # Episode directory already exists
-        pass
-
-    tmp_path = os.getcwd() + "/samples/tmp/"
-    sample_path = os.getcwd() + "/samples/tmp/{name}.ogg".format(name=tmp_name)
-    try:
-        os.makedirs(tmp_path)
     except FileExistsError:
         # Episode directory already exists
         pass
@@ -120,10 +113,20 @@ def create_sample(episode):
                 episode.get("name")
                 ) + bcolors.ENDC
             )
+
             sample_not_guessable = False
-            sample_fn = "{}.ogg".format(tmp_name)
+
+            sample_fn = "s{}/{}/{}.ogg".format(episode.get("season"), episode.get("episode"), x)
+            sample[sample_fn] = dict(
+                transcript=transcript,
+                start=start_time
+            )
+
             #sample_file_name = "s{}/{}/{name}.ogg".format(episode.get("season"), episode.get("episode"), name=tmp_name)
-            sample[sample_fn] = [transcript, start_time]
+            sample[sample_fn] = dict(
+                transcript=transcript, 
+                time=start_time
+            )
         else:
             os.remove(sample_path)
 
@@ -134,8 +137,6 @@ def create_sample(episode):
         "Name": episode.get("name"),
         "Samples": sample
     }
-    
-
 
 def create_sample_trio(episode):
     """Create an audio sample, save it and return the answer."""
