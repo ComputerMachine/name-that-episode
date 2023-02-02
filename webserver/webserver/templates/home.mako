@@ -54,18 +54,26 @@
 
           
         <div class="modal fade" id="episodeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="episodeTitle"></h5>
-                    <h7 id="episodeNumber"></h7>
+                    <h6 id="episodeNumber"></h6>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="row">
                         <img src="static/implant.jpg"/>
-                        <p>Capt. Picard finds himself shifting continually into the past, future and present and must use that to discover a threat to humanity's existence.</p>
-                        <p><a href="#">Thumbnail snapshot isn't a clear indicator of episode</a></p>
+                        <p id="episode-desc">The new U.S.S. Enterprise-D and its crew set out "to boldly go where no one has gone before."
+Their first mission of the Galaxy-class starship U.S.S. Enterprise-D is to explore the mystery surrounding the creation of the Farpoint Station located on planet Deneb IV. While trying to negotiate a friendly agreement for Starfleet to use this energy-powered base, Captain Picard and his crew also attempt to discover how the Bandi inhabitants of Deneb IV built the station.</p>
+                        
+                        <div class="col-md-6">
+                            <p><a id="trekcore-url" href="#">Read more</a></p>
+                        </div>
+
+                        <div class="col-md-6 text-end">
+                            <p><a href="#">Report thumbnail</a><!--Thumbnail snapshot isn't a clear indicator of episode, report incorrect information, report unusable sample-->
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">

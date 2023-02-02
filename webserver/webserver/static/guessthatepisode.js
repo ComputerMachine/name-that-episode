@@ -11,7 +11,7 @@ $(async function() {
     let episode = data[Math.floor(Math.random() * data.length-1)];
     let correctAnswers = 0;
     const audio = document.getElementById("audio");
-    const maxPoints = data.length*3; 
+    const maxPoints = data.length*3;
     
     let randomEpisode = function() {
         let previousEpisodeIndex = data.indexOf(episode);
@@ -62,7 +62,7 @@ $(async function() {
             // .replace(/\b(part\s+)?(i+|\d+)$/, "")  // incase i have to regenerate the list
     },
     createChangelog = function(episode) {
-        let episodeInfo = episode[Object.keys(episode)];
+        //let episodeInfo = episode[Object.keys(episode)];
         const $li = $("<li>", {class: "list-group-item"})
         let $span =$("<span>", {class: "score"});
         let $p = $("<p>");
@@ -72,11 +72,11 @@ $(async function() {
             case 1:
                 $span.addClass("plus");
                 $span.text("+" + points);
-                $p.text("Correctly answered " + episodeInfo.name);
+                $p.text("Correctly answered " + episode.title);
                 break;
             case 0:
                 $span.text("0");
-                $p.text("Couldn't figure out " + episodeInfo.name);
+                $p.text("Couldn't figure out " + episode.title);
                 break;
         }
         return $li.append($span).append($p);
@@ -99,15 +99,12 @@ $(async function() {
         timerId = startCountdown();
     },
     showDetailedEpisodeInfo = function() {
-        $("#episodeTitle").text(episode.Name);
-        $("#episodeNumber").text("Season " + episode.Season + " Episode " + episode.Episode);
+        $("#episodeTitle").text(episode.title);
+        $("#episodeNumber").text("Season " + episode.season + " Episode " + episode.episode);
         $("#episodeModal").modal('show');
     },
     changeAudioSrc = function() {
-        let samplePath = Object.keys(episode);
-        // the sample path is the key, the value is a hash
-        //console.log("CHANGING AUDIO SOURCE");
-        console.log(episode[samplePath]);
+        let samplePath = Object.keys(episode["samples"])[sample];
         $("#audio").attr("src", "/static/samples/" + samplePath);
     };
 
@@ -115,8 +112,7 @@ $(async function() {
     changeAudioSrc();
 
     /* user is moving to the next episode */
-        $("#next").on("click", function() {
-        console.log("Moving to next episode... ");
+    $("#next").on("click", function() {
         points = 0;
         nextEpisode();
         startRound();
@@ -147,15 +143,17 @@ $(async function() {
 
     /* this event is fired if the user types into the input box */
     $("#answer").on("input", function() {
-        //let episodeKey = Object.keys(episode);
-        let episodeInfo = episode[Object.keys(episode)];
-        console.log(episodeInfo);
+        let samplePath = Object.keys(episode["samples"])[sample];
+        let episodeInfo = episode["samples"][samplePath];
+
+        console.log(episode);
+
         if (!timerStarted) {
             timerStarted = true;
             timerId = startCountdown();
         }
 
-        if (normalize($(this).val()) === normalize(episodeInfo.name)) {
+        if (normalize($(this).val()) === normalize(episode.title)) {
             // you answered it correctly! hallejuah!
             $(this)
                 .removeClass("is-invalid")
@@ -165,6 +163,7 @@ $(async function() {
             correctAnswers++; $("#correctAnswers").text(correctAnswers);
 
             // create a timeout so the user can actually see that he/her/them/shem was right
+            // lock input during this time
 
             if ($("#showDetailedInfo").is(":checked")) {
                 window.clearInterval(timerId);
@@ -193,16 +192,7 @@ $(async function() {
         if (sample >= 2) {
             $(this).prop("disabled", true);
         };
-
-        let episodeKey = Object.keys(episode);
-        let newSampleIndex = parseInt(episodeKey.split(".ogg")[0].split("/")[2])+1;
-        let newEpisodeKey = episodeKey.split(".ogg")[0].split("/").slice(0,2).join("/") + newSampleIndex + "";
-        let newSampleKey = data[]
-        console.log(episode);
-        // the sample path is the key, the value is a hash
-        $("#audio").attr("src", "/static/samples/" + episodeKey);
-
-        //changeAudioSrc();
+        changeAudioSrc();
         audio.play();
     });
 });

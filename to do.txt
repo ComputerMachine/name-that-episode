@@ -10,3 +10,14 @@ If sample 1 exists, it will throw an "IndexError: list index out of range" in li
 
 # Bugs
 1. When creating 3 samples for an episode, if the program is interrupted before the series is complete, it doesn't store the answers, and the sample file is sometimes corrupt.
+
+To add:
+* Add description column to nte_episode table
+* find out why there's an S in one of the episode columns in the databases
+* LINE 107 throws TypeError, samples becomes undefined
+* report incorrect information
+
+guessthatepisode.js:107 Uncaught TypeError: Cannot read properties of undefined (reading 'samples')
+    at changeAudioSrc (guessthatepisode.js:107:45)
+    at nextEpisode (guessthatepisode.js:94:9)
+    at guessthatepisode.js:178:17
