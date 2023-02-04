@@ -5,6 +5,7 @@ import random
 import json
 import sr
 import configparser
+import cv2
 
 
 class bcolors:
@@ -62,81 +63,16 @@ def get_episode_data(series):
                 path=episode_path
             )
 
-def create_sample(episode):
-    sample = {}
-    dir_path = "{path}/samples/s{season}/{n}".format(
-        path=os.getcwd(),
-        season=episode.get("season"),
-        n=episode.get("episode")
-    )
-
-    sample_path = "{episode_folder_path}/{x}.ogg".format(episode_folder_path=dir_path, x=x)
-
-    try:
-        os.makedirs(dir_path)
-    except FileExistsError:
-        # Episode directory already exists
-        pass
-
-    sample_not_guessable = True
-
-    while sample_not_guessable:
-        start_time = datetime.timedelta(
-            minutes=random.randrange(0,42),
-            seconds=random.randrange(0,60)
-        )
-        end_time = start_time + datetime.timedelta(seconds=10)
-        print ("Start: {} | Stop: {}".format(start_time, end_time))
-
-        ffmpeg_process = subprocess.Popen([
-            "ffmpeg",
-            "-hide_banner",
-            "-loglevel", "error",
-            "-n",                   
-            "-i", episode.get("path"), # input file path
-            "-ss", str(start_time), # start cut time
-            "-to", str(end_time), # end cut time
-            "-c:a", "libvorbis", # encoding
-            "-b:a", "96k", # sample bitrate
-            "-vn", # extract audio only
-            sample_path
-        ])
-
-        ffmpeg_process.wait()
-
-        # Check if the sample obtained is guessable
-        transcript, words = sr.leopard.process_file(sample_path)
-        if sr.is_guessable(transcript):
-            print (bcolors.OKGREEN + "Successfully created sample for Season {} Episode {} - {}".format(
-                episode.get("season"),
-                episode.get("episode"),
-                episode.get("name")
-                ) + bcolors.ENDC
-            )
-
-            sample_not_guessable = False
-
-            sample_fn = "s{}/{}/{}.ogg".format(episode.get("season"), episode.get("episode"), x)
-            sample[sample_fn] = dict(
-                transcript=transcript,
-                start=start_time
-            )
-
-            #sample_file_name = "s{}/{}/{name}.ogg".format(episode.get("season"), episode.get("episode"), name=tmp_name)
-            sample[sample_fn] = dict(
-                transcript=transcript, 
-                time=start_time
-            )
-        else:
-            os.remove(sample_path)
-
-    # only returns an answer dict if all samples have been created
-    return {
-        "Season": episode.get("season"),
-        "Episode": episode.get("episode"),
-        "Name": episode.get("name"),
-        "Samples": sample
-    }
+def get_sample_thumbnail(video_path, start_time):
+    cap = cv2.VideoCapture(video_path)
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    start_frame = fps*start_time
+    cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+    success, image = cap.read()
+    if success:
+        cv2.imwrite('framepic2.jpg', image)
+        return True
+    return False
 
 def create_sample_trio(episode):
     """Create an audio sample, save it and return the answer."""
@@ -223,7 +159,7 @@ def create_sample_trio(episode):
         "Samples": samples
     }
 
-def update_answer_file(new_data):
+def update_answer_file(new_data): # get rid of this and just update the database directly
     """Take a list of dicts of new episode data and update the answer file."""
     try:
         with open("answers.json", "r") as f:
@@ -251,68 +187,27 @@ def update_answer_file(new_data):
 
     return True
 
-def update_sample_answer(new_answers):
-    with open("answers.json", "r") as f:
-        data = json.load(f)
-    for a, i in enumerate(data):
-        if new_answers['Name'] == a['Name']:
-            data[i] = new_answers # update old answers with the new ones
-    with open("answers.json", "w") as f:
-        json.dump(data, f)
-    return True
-
-
-def update_answers_path(new_path):
-    """Updates the path to the samples folder."""
-    with open("answers.json", "r") as f:
-        data = json.load(f)
-    for i, episode in enumerate(data):
-        paths = []
-        for x in range(3):
-            season_folders = data[i]["Samples"][x].split("/samples/")[1]
-            paths.append(new_path + season_folders)
-        data[i]["Samples"] = paths
-    with open("answers.json", "w") as f:
-        json.dump(data, f)
-    print (data)
-
-
 if __name__ == "__main__":
-    data = get_episode_data("tng")
-    episodes = [e for e in data]
-    answers_exist = os.path.exists("{}/answers.json".format(os.getcwd()))
-    answers = []
+    #vpath = '/media/tazg/Storage/movies/star trek/tng/Season.1/Star.Trek.TNG.S01E01E02 - Encounter at Farpoint.mkv'
+    #get_sample_thumbnail(vpath, 1841)
 
-    try:
-        for episode in episodes:
-            print ("Now working on episode: ", episode.get("name"))
-            sample_answers = create_sample_trio(episode)
-            if sample_answers.get("Samples") == {}:
-                continue
-            answers.append(sample_answers)
-    except KeyboardInterrupt:
-        print ("INTERRUPTED!")
 
-    """if answers_exist:
-        try:
-            update_answer_file(answers)
-        except json.decoder.JSONDecodeError:
-            print ("Invalid JSON or empty answers file perhaps?")
-            try_again = True
-            while try_again:
-                s = input("> try again? (y/n)")
-                if s == "y":
-                    try:
-                        update_answer_file(answers)
-                    except:
-                        pass
-                else:
-                    try_again = False
-        except FileNotFoundError:
-            with open("answers.json", "w") as f:
-                json.dump(answers, f)
-    else:
-        with open("answers.json", "w") as f:
-            json.dump(answers, f, default=str)
-    """
+    for episode in get_episode_data("tng"):
+        print (episode.get("title"))
+        get_sample_thumbnail(episode.get("path"))
+        break
+    #episodes = [e for e in data]
+    #answers_exist = os.path.exists("{}/answers.json".format(os.getcwd()))
+    #answers = []
+
+    #try:
+    #    for episode in episodes:
+    #        print ("Now working on episode: ", episode.get("name"))
+     #       sample_answers = create_sample_trio(episode)
+     #       if sample_answers.get("Samples") == {}:
+    #            continue
+   #         answers.append(sample_answers)
+   # except KeyboardInterrupt:
+    #    print ("INTERRUPTED!")
+
     print ("ALL DONE")

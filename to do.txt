@@ -21,3 +21,6 @@ guessthatepisode.js:107 Uncaught TypeError: Cannot read properties of undefined 
     at changeAudioSrc (guessthatepisode.js:107:45)
     at nextEpisode (guessthatepisode.js:94:9)
     at guessthatepisode.js:178:17
+
+
+link script-search script to create a new dict key and value pair, ex: {real_transcript: "shut up wesley!"}

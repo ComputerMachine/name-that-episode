@@ -100,6 +100,7 @@ $(async function() {
     },
     showDetailedEpisodeInfo = function() {
         $("#episodeTitle").text(episode.title);
+        $("#episode-desc").text(episode.description);
         $("#episodeNumber").text("Season " + episode.season + " Episode " + episode.episode);
         $("#episodeModal").modal('show');
     },

@@ -2,7 +2,7 @@ import psycopg2
 import configparser
 import json
 
-from scripts.change_data_structure import insert_json_into_postgresql
+from scripts.redis_to_json import insert_json_into_postgresql
 
 
 def write_sql_config(dbname, dbuser, dbpass, dbport):
@@ -37,7 +37,6 @@ def database_setup():
         cursor.execute(t)
     
     con.commit()
-    print (con.commit())
     return True
 
 if __name__ == "__main__":
