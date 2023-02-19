@@ -24,3 +24,5 @@ guessthatepisode.js:107 Uncaught TypeError: Cannot read properties of undefined 
 
 
 link script-search script to create a new dict key and value pair, ex: {real_transcript: "shut up wesley!"}
+
+when typing, offer suggestions into episode names?

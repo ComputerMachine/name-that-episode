@@ -10,6 +10,7 @@ $(async function() {
     let totalPoints = 0;
     let episode = data[Math.floor(Math.random() * data.length-1)];
     let correctAnswers = 0;
+    let episodeThumbnailSrc = Object.keys(episode["samples"])[sample].split(".ogg")[0] + ".jpg";
     const audio = document.getElementById("audio");
     const maxPoints = data.length*3;
     
@@ -100,12 +101,17 @@ $(async function() {
     },
     showDetailedEpisodeInfo = function() {
         $("#episodeTitle").text(episode.title);
-        $("#episode-desc").text(episode.description);
+        $("#episodeDesc").text(episode.description);
+        $("#episodeThumbnail").attr("src", episodeThumbnailSrc);
         $("#episodeNumber").text("Season " + episode.season + " Episode " + episode.episode);
         $("#episodeModal").modal('show');
     },
+    changeThumbnailSrc = function(samplePath) {
+        episodeThumbnailSrc = "/static/thumbnails/" + samplePath.split(".ogg")[0] + ".jpg";
+    },
     changeAudioSrc = function() {
         let samplePath = Object.keys(episode["samples"])[sample];
+        changeThumbnailSrc(samplePath);
         $("#audio").attr("src", "/static/samples/" + samplePath);
     };
 

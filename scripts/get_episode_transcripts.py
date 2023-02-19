@@ -75,7 +75,7 @@ def download_episodes(series):
         url = "http://www.chakoteya.net/Enterprise/"
         series_folder = "/ent/"
 
-    #s#easons = get_all_episodes(series)
+    seasons = get_all_episodes(series)
 
     if not os.path.exists(transcript_folder + series_folder):
         os.makedirs(transcript_folder + series_folder)
@@ -121,3 +121,11 @@ def download_episodes(series):
 
             with open(new_file_path, "w", encoding="utf-8") as f:
                 f.write(str(soup))
+
+
+if __name__ == "__main__":
+    download_episodes("tng")
+    #download_episodes("ds9")
+    #download_episodes("voy")
+    #download_episodes("ent")
+    #download_episodes("tos") # TAS links are posted on TOS episodes page

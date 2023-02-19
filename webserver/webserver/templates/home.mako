@@ -63,8 +63,8 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <img src="static/implant.jpg"/>
-                        <p id="episode-desc">The new U.S.S. Enterprise-D and its crew set out "to boldly go where no one has gone before."
+                        <img id ="episodeThumbnail" src="static/implant.jpg"/>
+                        <p id="episodeDesc">The new U.S.S. Enterprise-D and its crew set out "to boldly go where no one has gone before."
 Their first mission of the Galaxy-class starship U.S.S. Enterprise-D is to explore the mystery surrounding the creation of the Farpoint Station located on planet Deneb IV. While trying to negotiate a friendly agreement for Starfleet to use this energy-powered base, Captain Picard and his crew also attempt to discover how the Bandi inhabitants of Deneb IV built the station.</p>
                         
                         <div class="col-md-6">

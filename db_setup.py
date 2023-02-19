@@ -24,16 +24,17 @@ def database_setup():
     config.read("sql.cfg")
     try:
         con = psycopg2.connect(
-            database=config.get("auth", "name"), 
-            user=config.get("auth", "user"), 
-            password=config.get("auth", "pass"), 
+            database=config.get("auth", "name"),
+            user=config.get("auth", "user"),
+            password=config.get("auth", "pass"),
             port=config.get("auth", "port")
         )
     except Exception as e:
         raise Exception(e)
         
+    cursor = con.cursor()
+
     for t in tables:
-        cursor = con.cursor()
         cursor.execute(t)
     
     con.commit()

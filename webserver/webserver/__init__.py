@@ -3,7 +3,6 @@ import psycopg2
 import configparser
 
 from pyramid.config import Configurator
-from webserver.db import redis_db
 
 
 def episode_info(episode):

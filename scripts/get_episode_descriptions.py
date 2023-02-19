@@ -6,17 +6,18 @@ import configparser
 
 from bs4 import BeautifulSoup, SoupStrainer
 
-
-def get_tng_episode_hrefs():
-    """Return a list of dicts containing information about each episode."""
-    url = "https://tng.trekcore.com/episodes/index.html"
+def web_request(url):
     headers = {
         'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36',
     }
     req = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(req) as req_data:
-        data = req_data.read()
+        return req_data.read()
 
+def get_tng_episode_hrefs():
+    """Return a list of dicts containing information about each episode."""
+    url = "https://tng.trekcore.com/episodes/index.html"
+    data = web_request(url)
     soup = BeautifulSoup(data, "html.parser")
     episode_tables = soup.body.table.find_all(class_="sortable")
 
@@ -61,12 +62,7 @@ def get_summary(episode_url):
 
 def get_synopsis_url(episode_url):
     """Find the URL that contains the synopsis and return it."""
-    headers = {
-        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36',
-    }
-    req = urllib.request.Request(episode_url, headers=headers)
-    with urllib.request.urlopen(req) as req_data:
-        data = req_data.read()
+    data = web_request(episode_url)
     soup = BeautifulSoup(data, "html.parser")
     synopsis_url = soup.body.find(id="table4").find("a", text="SYNOPSIS")["href"]
     if synopsis_url[0:4] != "http":
@@ -77,12 +73,7 @@ def get_synopsis(synopsis_url):
     """Find and return the synopsis from the synopsis url."""
     if synopsis_url is None:
         return False
-    headers = {
-        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36',
-    }
-    req = urllib.request.Request(synopsis_url, headers=headers)
-    with urllib.request.urlopen(req) as req_data:
-        data = req_data.read()
+    data = web_request(synopsis_url)
     soup = BeautifulSoup(data, "html.parser")
     # encounter at farpoint workss with this
     #syn_block = soup.find("b", text="OFFICIAL SYNOPSIS").parent.parent
